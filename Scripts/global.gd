@@ -195,7 +195,6 @@ func refresh_hud() -> void:
 	hud_def_label.text = "DEF: %d" % player_def
 	hud_kill_label.text = "Slimes defeated: %d" % slimes_killed
 
-
 func finish_changescenes():
 	if transition_scene == true:
 		transition_scene = false
@@ -207,6 +206,7 @@ func finish_changescenes():
 		get_tree().create_timer(0.5).timeout.connect(func(): can_transition = true)
 			
 			
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	Global.current_scene = "world"
@@ -216,6 +216,9 @@ func _ready() -> void:
 
 	ambient2.stream = bird_sound_2
 	ambient2.play()
+	
+	ambient1.finished.connect(_on_ambient1_finished)
+	ambient2.finished.connect(_on_ambient2_finished)
 
 	ambient_timer.wait_time = 6.0
 	ambient_timer.timeout.connect(_on_ambient_timer_timeout)
@@ -233,10 +236,19 @@ func _ready() -> void:
 	build_hud()
 	refresh_hud()
 
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+
+func _on_ambient1_finished() -> void:
+	get_tree().create_timer(randf_range(3.0, 8.0)).timeout.connect(func():
+		ambient1.play()
+	)
+	
+func _on_ambient2_finished() -> void:
+	get_tree().create_timer(randf_range(3.0, 8.0)).timeout.connect(func():
+		ambient1.play()
+	)
 
 func _on_wind_player_finished() -> void:
 	wind_player.stream = wind_sounds[randi() % wind_sounds.size()]
