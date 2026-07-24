@@ -2,10 +2,18 @@ extends CharacterBody2D
 
 var mob_inattack_range = false
 var mob_attack_cooldown = true
-var health = 100
+var attacking_mob = null          
+
+var health = 100.0
+var max_health = 100.0            
 var player_alive = true
 
 var attack_ip = false
+
+var can_attack = true
+var attack_cd_timer: Timer
+const ATTACK_COOLDOWN = 1.0       
+const ATTACK_ANIM_SPEED = 1.8     
 
 const SPEED = 100.0
 var current_dir = "none"
@@ -16,9 +24,24 @@ var time_since_damage = 999.0
 
 var footstep_interval = 0.35
 var footstep_time_accum = 0.0
+
+@export var low_health_threshold := 0.25
  
 func _ready() -> void:
+	sync_from_global()
 	$AnimatedSprite2D.play("front_idle")
+
+	attack_cd_timer = Timer.new()
+	attack_cd_timer.one_shot = true
+	attack_cd_timer.wait_time = ATTACK_COOLDOWN
+	add_child(attack_cd_timer)
+	attack_cd_timer.timeout.connect(_on_attack_cd_timeout)
+
+	Global.player_leveled_up.connect(_on_player_leveled_up)
+
+func sync_from_global() -> void:
+	max_health = Global.player_max_health
+	health = Global.player_current_health
 
 func _physics_process(delta: float) -> void:
 	player_movement(delta) 
@@ -27,12 +50,13 @@ func _physics_process(delta: float) -> void:
 	current_camera()
 	update_health_color()
 	regen_health(delta)
+	Global.set_player_health(health, max_health)
 	
 	if health <= 0:
 		respawn()
 
 func respawn():
-	health = 100
+	health = max_health
 	player_alive = true
 	time_since_damage = 999.0
 	position.x = Global.player_start_posx
@@ -122,15 +146,22 @@ func player():
 func _on_player_hitbox_body_entered(body: Node2D) -> void:
 	if body.has_method("mob"):
 		mob_inattack_range = true
+		attacking_mob = body
 
 
 func _on_player_hitbox_body_exited(body: Node2D) -> void:
 	if body.has_method("mob"):
 		mob_inattack_range = false
+		if attacking_mob == body:
+			attacking_mob = null
 
 func mob_attack():
 	if mob_inattack_range and mob_attack_cooldown == true:
-		health = health - 10
+		var incoming_atk = 10
+		if attacking_mob != null and "attack_power" in attacking_mob:
+			incoming_atk = attacking_mob.attack_power
+		var dmg = max(1, incoming_atk - Global.player_def)   
+		health = health - dmg
 		mob_attack_cooldown = false
 		time_since_damage = 0.0
 		Global.play_hit(global_position)
@@ -143,10 +174,13 @@ func _on_attack_cooldown_timeout() -> void:
 func attack():
 	var dir = current_dir
 	
-	if Input.is_action_just_pressed("attack"):
+	if Input.is_action_just_pressed("attack") and can_attack:
+		can_attack = false
+		attack_cd_timer.start()
+
 		Global.player_current_attack = true
 		attack_ip = true
-		$AnimatedSprite2D.speed_scale = 1
+		$AnimatedSprite2D.speed_scale = ATTACK_ANIM_SPEED
 		if dir == "right":
 			$AnimatedSprite2D.flip_h = false
 			$AnimatedSprite2D.play("side_attack")
@@ -162,10 +196,14 @@ func attack():
 			$AnimatedSprite2D.play("back_attack")
 			$deal_attack_timer.start()
 
+func _on_attack_cd_timeout() -> void:
+	can_attack = true
+
 func _on_deal_attack_timer_timeout() -> void:
 	$deal_attack_timer.stop()
 	Global.player_current_attack = false
 	attack_ip = false
+	$AnimatedSprite2D.speed_scale = 1.0
 
 func current_camera():
 	if Global.current_scene == "world":
@@ -177,8 +215,10 @@ func current_camera():
 		$cliffside_camera.enabled = true
 		$cliffside_camera.make_current()
 
-@export var low_health_threshold := 0.25  
-var max_health = 100.0
+func _on_player_leveled_up(_new_level: int) -> void:
+
+	max_health = Global.player_max_health
+	health = Global.player_current_health
 
 func update_health_color():
 	var hp_percent = float(health) / max_health
@@ -188,4 +228,5 @@ func update_health_color():
 		sprite.modulate = Color.WHITE.lerp(Color(1, 0.2, 0.2), 1.0 - t)
 	else:
 		sprite.modulate = Color.WHITE
+	$HealthBar.max_value = max_health
 	$HealthBar.value = health

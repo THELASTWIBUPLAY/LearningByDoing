@@ -134,5 +134,25 @@ position = Vector2(324, 437)
 y_sort_enabled = true
 position = Vector2(686, 407)
 
+[node name="mob5" parent="." unique_id=543533934 instance=ExtResource("5_fo5ed")]
+y_sort_enabled = true
+position = Vector2(894, 313)
+
+[node name="mob6" parent="." unique_id=561215082 instance=ExtResource("5_fo5ed")]
+y_sort_enabled = true
+position = Vector2(856, 147)
+
+[node name="mob7" parent="." unique_id=836370800 instance=ExtResource("5_fo5ed")]
+y_sort_enabled = true
+position = Vector2(1026, 394)
+
+[node name="mob8" parent="." unique_id=554049749 instance=ExtResource("5_fo5ed")]
+y_sort_enabled = true
+position = Vector2(131, 510)
+
+[node name="mob9" parent="." unique_id=1809633350 instance=ExtResource("5_fo5ed")]
+y_sort_enabled = true
+position = Vector2(240, 96)
+
 [connection signal="body_entered" from="cliffside_transition_point" to="." method="_on_cliffside_transition_point_body_entered"]
 [connection signal="body_exited" from="cliffside_transition_point" to="." method="_on_cliffside_transition_point_body_exited"]

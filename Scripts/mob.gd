@@ -5,7 +5,8 @@ var player_chase = false
 var player = null
 var last_direction = "down"
 
-var health = 100
+var health = 100.0
+var attack_power = 10          
 var player_inattack_zone = false
 var can_take_damage = true
 
@@ -62,16 +63,17 @@ func _on_enemy_hitbox_body_exited(body: Node2D) -> void:
 func deal_with_damage():
 	if player_inattack_zone and Global.player_current_attack == true:
 		if can_take_damage == true:
-			health = health -20
+			var dmg = max(1, Global.player_atk)   
+			health = health - dmg
 			$take_damage_cooldown.start()
 			can_take_damage = false
 			$HealthBar.value = health
 			print("slime health: ", health)
 			if health <= 0:
 				Global.play_slime_death(global_position)
+				Global.register_slime_kill()   
 				self.queue_free()
 
 
 func _on_take_damage_cooldown_timeout() -> void:
 	can_take_damage = true
-	

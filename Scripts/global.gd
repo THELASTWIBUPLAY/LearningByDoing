@@ -54,6 +54,148 @@ var slime_death_sound = preload("res://Audio/Slime_Death/SE_PanPan.ogg")
 const SFX_POOL_SIZE = 8
 var sfx_pool: Array = []
 
+
+# ============================================================
+# PLAYER LEVEL / EXP / STATS
+# ============================================================
+
+signal player_stats_changed
+signal player_leveled_up(new_level: int)
+
+var player_level = 1
+var player_exp = 0.0
+var player_exp_to_next = 100.0        
+
+var player_max_health = 100.0
+var player_current_health = 100.0
+var player_atk = 10
+var player_def = 0
+
+var slimes_killed = 0
+var exp_per_kill = 25.0                
+
+func add_player_exp(amount: float) -> void:
+	player_exp += amount
+
+	while player_exp >= player_exp_to_next:
+		player_exp -= player_exp_to_next
+		level_up_player()
+	emit_signal("player_stats_changed")
+	refresh_hud()
+
+func level_up_player() -> void:
+	player_level += 1
+	player_exp_to_next = player_level * 100.0  
+
+	player_max_health += 20.0
+	player_atk += 3
+	player_def += 1
+
+	player_current_health = player_max_health
+
+	emit_signal("player_leveled_up", player_level)
+	emit_signal("player_stats_changed")
+
+func register_slime_kill() -> void:
+	slimes_killed += 1
+	add_player_exp(exp_per_kill)
+
+func set_player_health(current: float, max_value: float) -> void:
+	player_current_health = current
+	player_max_health = max_value
+	refresh_hud()
+
+
+# ============================================================
+# HUD 
+# ============================================================
+
+var hud_layer: CanvasLayer
+var hud_level_label: Label
+var hud_exp_bar: ProgressBar
+var hud_hp_label: Label
+var hud_atk_label: Label
+var hud_def_label: Label
+var hud_kill_label: Label
+
+func build_hud() -> void:
+	hud_layer = CanvasLayer.new()
+	hud_layer.layer = 10
+	add_child(hud_layer)
+
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	panel.position = Vector2(16, 16)
+
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.05, 0.05, 0.05, 0.75)
+	panel_style.corner_radius_top_left = 6
+	panel_style.corner_radius_top_right = 6
+	panel_style.corner_radius_bottom_left = 6
+	panel_style.corner_radius_bottom_right = 6
+	panel_style.content_margin_left = 10
+	panel_style.content_margin_right = 10
+	panel_style.content_margin_top = 8
+	panel_style.content_margin_bottom = 8
+	panel.add_theme_stylebox_override("panel", panel_style)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	panel.add_child(vbox)
+
+	hud_level_label = Label.new()
+	hud_level_label.add_theme_color_override("font_color", Color.WHITE)
+	vbox.add_child(hud_level_label)
+
+	hud_exp_bar = ProgressBar.new()
+	hud_exp_bar.custom_minimum_size = Vector2(150, 10)
+	hud_exp_bar.show_percentage = false
+	var exp_bg = StyleBoxFlat.new()
+	exp_bg.bg_color = Color(0.1, 0.1, 0.1, 0.8)
+	exp_bg.corner_radius_top_left = 3
+	exp_bg.corner_radius_top_right = 3
+	exp_bg.corner_radius_bottom_left = 3
+	exp_bg.corner_radius_bottom_right = 3
+	var exp_fill = StyleBoxFlat.new()
+	exp_fill.bg_color = Color(0.3, 0.6, 1.0, 1.0)
+	exp_fill.corner_radius_top_left = 3
+	exp_fill.corner_radius_top_right = 3
+	exp_fill.corner_radius_bottom_left = 3
+	exp_fill.corner_radius_bottom_right = 3
+	hud_exp_bar.add_theme_stylebox_override("background", exp_bg)
+	hud_exp_bar.add_theme_stylebox_override("fill", exp_fill)
+	vbox.add_child(hud_exp_bar)
+
+	hud_hp_label = Label.new()
+	hud_hp_label.add_theme_color_override("font_color", Color(0.9, 0.3, 0.3))
+	vbox.add_child(hud_hp_label)
+
+	hud_atk_label = Label.new()
+	hud_atk_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.3))
+	vbox.add_child(hud_atk_label)
+
+	hud_def_label = Label.new()
+	hud_def_label.add_theme_color_override("font_color", Color(0.5, 0.8, 1.0))
+	vbox.add_child(hud_def_label)
+
+	hud_kill_label = Label.new()
+	hud_kill_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	vbox.add_child(hud_kill_label)
+
+	hud_layer.add_child(panel)
+
+func refresh_hud() -> void:
+	if hud_level_label == null:
+		return
+	hud_level_label.text = "Lv. %d" % player_level
+	hud_exp_bar.max_value = player_exp_to_next
+	hud_exp_bar.value = player_exp
+	hud_hp_label.text = "HP: %d / %d" % [int(round(player_current_health)), int(round(player_max_health))]
+	hud_atk_label.text = "ATK: %d" % player_atk
+	hud_def_label.text = "DEF: %d" % player_def
+	hud_kill_label.text = "Slimes defeated: %d" % slimes_killed
+
+
 func finish_changescenes():
 	if transition_scene == true:
 		transition_scene = false
@@ -87,6 +229,9 @@ func _ready() -> void:
 		var p = AudioStreamPlayer2D.new()
 		add_child(p)
 		sfx_pool.append(p)
+
+	build_hud()
+	refresh_hud()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
