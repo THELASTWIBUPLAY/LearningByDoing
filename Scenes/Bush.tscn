@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bh13wwmit346c"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bush"]
+size = Vector2(32, 32)
+
+[node name="Bush" type="Area2D" unique_id=1051492760]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=34326356]
+shape = SubResource("RectangleShape2D_bush")

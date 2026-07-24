@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bt8n7d0t2jkhs"]
+
+[ext_resource type="Script" uid="uid://cr0wossw6vr3o" path="res://Scripts/global.gd" id="1_6yl2a"]
+
+[node name="Global" type="Node" unique_id=927659644]
+script = ExtResource("1_6yl2a")
+
+[node name="AmbientPlayer1" type="AudioStreamPlayer2D" parent="." unique_id=1330728363]
+
+[node name="AmbientPlayer2" type="AudioStreamPlayer2D" parent="." unique_id=670300461]
+
+[node name="RandomAmbientPlayer" type="AudioStreamPlayer2D" parent="." unique_id=190408490]
+
+[node name="AmbientTimer" type="Timer" parent="." unique_id=554178814]
+
+[node name="WindPlayer" type="AudioStreamPlayer2D" parent="." unique_id=667230093]
