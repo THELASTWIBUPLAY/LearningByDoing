@@ -1,5 +1,7 @@
 # RPG-Test
 
+<img width="1150" height="647" alt="Screenshot (1206)" src="https://github.com/user-attachments/assets/4ecff98e-8822-483b-a832-811437307500" />
+
 Proyek 2D RPG top-down yang dibangun dengan **Godot Engine 4.7.1** menggunakan **GDScript**, sebagai bagian dari portofolio untuk melamar magang di bidang game development.
 
 ---
@@ -17,6 +19,8 @@ RPG adalah salah satu genre yang paling saya sukai secara personal. Ada kepuasan
 Saya juga menyukai Visual Novel, tapi menurut saya VN lebih cocok jadi media penyampaian cerita, bukan fokus inti dari gameplay-nya meskipun storytelling-nya bisa sangat kuat. RPG memberi ruang untuk keduanya: progression sistem yang solid *dan* ruang bercerita, jadi genre ini terasa paling pas untuk dieksplorasi sebagai proyek portofolio.
 
 ## Fitur & Mekanik
+
+<img width="1148" height="644" alt="Screenshot (1208)" src="https://github.com/user-attachments/assets/dc71f849-1d62-4caf-b518-b0e30f649334" />
 
 - **Pergerakan & kombat** : top-down real-time dengan animasi arah (atas/bawah/kiri/kanan)
 - **Sistem EXP & Leveling** : mengalahkan musuh memberi EXP, kebutuhan EXP naik seiring level (`level × 100`)
@@ -39,6 +43,8 @@ Jelajahi dunia, dekati musuh (slime) dan serang mereka untuk mendapatkan EXP. Ku
 Jika semua musuh di satu area sudah dikalahkan, pindah ke scene lain (misalnya area cliff side di kanan atas), lalu kembali lagi ke scene utama — musuh akan muncul kembali sehingga proses leveling bisa dilanjutkan.
 
 ## Tantangan yang Dihadapi
+
+<img width="1097" height="641" alt="Screenshot (1205)" src="https://github.com/user-attachments/assets/7fa48f4a-2db0-4e5a-8bb5-96115ebb2e08" />
 
 Membangun mekanik ini bukan tanpa hambatan. Beberapa tantangan terbesar yang saya alami:
 
