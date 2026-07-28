@@ -12,7 +12,7 @@ Programming sendiri merupakan salah satu passion saya sebagai mahasiswa Sistem I
 
 ## Kenapa RPG?
 
-RPG adalah salah satu genre yang paling saya sukai secara personal — ada kepuasan tersendiri dalam memperkuat karakter, menghadapi monster, dan menikmati jalan cerita yang dibangun sedikit demi sedikit.
+RPG adalah salah satu genre yang paling saya sukai secara personal. Ada kepuasan tersendiri dalam memperkuat karakter, menghadapi monster, dan menikmati jalan cerita yang dibangun sedikit demi sedikit.
 
 Saya juga menyukai Visual Novel, tapi menurut saya VN lebih cocok jadi media penyampaian cerita, bukan fokus inti dari gameplay-nya meskipun storytelling-nya bisa sangat kuat. RPG memberi ruang untuk keduanya: progression sistem yang solid *dan* ruang bercerita, jadi genre ini terasa paling pas untuk dieksplorasi sebagai proyek portofolio.
 
@@ -42,7 +42,7 @@ Jika semua musuh di satu area sudah dikalahkan, pindah ke scene lain (misalnya a
 
 Membangun mekanik ini bukan tanpa hambatan. Beberapa tantangan terbesar yang saya alami:
 
-- **Membuat node lewat kode, bukan lewat scene editor (`.tscn`)** : ini jadi struggle baru, karena hasil akhirnya tidak bisa langsung dilihat secara visual seperti biasanya di editor Godot. Perlu adaptasi cara berpikir dari "drag & drop node" menjadi "bayangkan struktur node di kepala, lalu tulis lewat script".
+- **Membuat node lewat kode, bukan lewat scene editor (`.tscn`)** : menjadi tantangan baru, karena hasil akhirnya tidak bisa langsung dilihat secara visual seperti biasanya di editor Godot. Perlu adaptasi cara berpikir dari "drag & drop node" menjadi "bayangkan struktur node di kepala, lalu tulis lewat script".
 - **Bug pada sistem perpindahan scene (`change_scene_to_file`)** : sempat terjebak cukup lama karena scene tidak mau berpindah sesuai yang diharapkan.
 - **Migrasi seluruh data pemain ke variabel global** : dilakukan demi menerapkan sistem EXP dan level dengan benar, karena node Player ternyata dihancurkan dan dibuat ulang setiap kali scene berganti, sehingga data seperti level, EXP, dan status harus disimpan di tempat yang persisten (autoload), bukan di script Player itu sendiri.
 
