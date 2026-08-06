@@ -25,6 +25,10 @@ var time_since_damage = 999.0
 var footstep_interval = 0.35
 var footstep_time_accum = 0.0
 
+const FULLSCREEN_ZOOM = Vector2(3, 3)
+var windowed_zoom_world: Vector2
+var windowed_zoom_cliffside:Vector2
+
 @export var low_health_threshold := 0.25
  
 func _ready() -> void:
@@ -38,6 +42,21 @@ func _ready() -> void:
 	attack_cd_timer.timeout.connect(_on_attack_cd_timeout)
 
 	Global.player_leveled_up.connect(_on_player_leveled_up)
+	
+	windowed_zoom_world = $world_camera.zoom
+	windowed_zoom_cliffside = $cliffside_camera.zoom
+	get_window().size_changed.connect(apply_camera_zoom)
+	apply_camera_zoom()
+
+func apply_camera_zoom() -> void:
+	var mode = DisplayServer.window_get_mode()
+	var is_fullscreen = mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+	if is_fullscreen:
+		$world_camera.zoom = FULLSCREEN_ZOOM
+		$cliffside_camera.zoom = FULLSCREEN_ZOOM
+	else:
+		$world_camera.zoom = windowed_zoom_world
+		$cliffside_camera.zoom = windowed_zoom_cliffside
 
 func sync_from_global() -> void:
 	max_health = Global.player_max_health

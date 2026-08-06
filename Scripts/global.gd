@@ -20,10 +20,10 @@ var game_first_loading = true
 @onready var ambient_timer = $AmbientTimer
 @onready var wind_player = $WindPlayer
 
-var bird_sound_1 = preload("res://Audio/Surrounding/SE_Bird_01.ogg")  # sering
-var bird_sound_2 = preload("res://Audio/Surrounding/SE_Bird_02.ogg")  # sering
-var bird_sound_3 = preload("res://Audio/Surrounding/SE_Bird_03.ogg")  # jarang
-var bird_sound_4 = preload("res://Audio/Surrounding/SE_Bird_04.ogg")  # jarang
+var bird_sound_1 = preload("res://Audio/Surrounding/SE_Bird_01.ogg")  
+var bird_sound_2 = preload("res://Audio/Surrounding/SE_Bird_02.ogg")  
+var bird_sound_3 = preload("res://Audio/Surrounding/SE_Bird_03.ogg")  
+var bird_sound_4 = preload("res://Audio/Surrounding/SE_Bird_04.ogg")  
 
 var bird_pool = [
 	{"sound": bird_sound_3, "weight": 3},
@@ -55,9 +55,9 @@ const SFX_POOL_SIZE = 8
 var sfx_pool: Array = []
 
 
-# ============================================================
+
 # PLAYER LEVEL / EXP / STATS
-# ============================================================
+
 
 signal player_stats_changed
 signal player_leveled_up(new_level: int)
@@ -105,10 +105,7 @@ func set_player_health(current: float, max_value: float) -> void:
 	player_max_health = max_value
 	refresh_hud()
 
-
-# ============================================================
-# HUD 
-# ============================================================
+# HUD (dibuat lewat code, jadi TIDAK perlu edit .tscn sama sekali)
 
 var hud_layer: CanvasLayer
 var hud_level_label: Label
@@ -195,6 +192,7 @@ func refresh_hud() -> void:
 	hud_def_label.text = "DEF: %d" % player_def
 	hud_kill_label.text = "Slimes defeated: %d" % slimes_killed
 
+
 func finish_changescenes():
 	if transition_scene == true:
 		transition_scene = false
@@ -206,18 +204,16 @@ func finish_changescenes():
 		get_tree().create_timer(0.5).timeout.connect(func(): can_transition = true)
 			
 			
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	Global.current_scene = "world"
 	
 	ambient1.stream = bird_sound_1
 	ambient1.play()
+	ambient1.finished.connect(_on_ambient1_finished)
 
 	ambient2.stream = bird_sound_2
 	ambient2.play()
-	
-	ambient1.finished.connect(_on_ambient1_finished)
 	ambient2.finished.connect(_on_ambient2_finished)
 
 	ambient_timer.wait_time = 6.0
@@ -235,24 +231,100 @@ func _ready() -> void:
 
 	build_hud()
 	refresh_hud()
+	build_pause_menu()
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
 
-func _on_ambient1_finished() -> void:
-	get_tree().create_timer(randf_range(3.0, 8.0)).timeout.connect(func():
-		ambient1.play()
-	)
-	
-func _on_ambient2_finished() -> void:
-	get_tree().create_timer(randf_range(3.0, 8.0)).timeout.connect(func():
-		ambient1.play()
-	)
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_F11:
+			toggle_fullscreen()
+		if event.keycode == KEY_ESCAPE:
+			pause()
+
+var is_paused = false
+
+func pause() -> void:
+	is_paused = !is_paused
+	get_tree().paused = is_paused
+	pause_menu_layer.visible = is_paused
+
+func toggle_fullscreen() -> void:
+	var mode = DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+
+# PAUSE MENU 
+
+var pause_menu_layer: CanvasLayer
+var resume_button: Button
+var quit_button: Button
+
+func build_pause_menu() -> void:
+	pause_menu_layer = CanvasLayer.new()
+	pause_menu_layer.layer = 20   # di atas HUD (layer 10), biar nutupin semua
+	add_child(pause_menu_layer)
+
+	var bg = ColorRect.new()
+	bg.color = Color(0, 0, 0, 0.6)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pause_menu_layer.add_child(bg)
+
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pause_menu_layer.add_child(center)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	center.add_child(vbox)
+
+	var title = Label.new()
+	title.text = "PAUSED"
+	title.add_theme_color_override("font_color", Color.WHITE)
+	title.add_theme_font_size_override("font_size", 28)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+
+	resume_button = Button.new()
+	resume_button.text = "Resume"
+	resume_button.custom_minimum_size = Vector2(180, 40)
+	resume_button.pressed.connect(_on_resume_pressed)
+	vbox.add_child(resume_button)
+
+	quit_button = Button.new()
+	quit_button.text = "Quit"
+	quit_button.custom_minimum_size = Vector2(180, 40)
+	quit_button.pressed.connect(_on_quit_pressed)
+	vbox.add_child(quit_button)
+
+	pause_menu_layer.hide()
+
+func _on_resume_pressed() -> void:
+	pause()
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()
 
 func _on_wind_player_finished() -> void:
 	wind_player.stream = wind_sounds[randi() % wind_sounds.size()]
 	wind_player.play()
+
+func _on_ambient1_finished() -> void:
+	# jeda random sebelum bird_sound_1 muter lagi, biar gak berasa robotic
+	get_tree().create_timer(randf_range(3.0, 8.0)).timeout.connect(func():
+		ambient1.play()
+	)
+
+func _on_ambient2_finished() -> void:
+	# jeda random sebelum bird_sound_2 muter lagi
+	get_tree().create_timer(randf_range(3.0, 8.0)).timeout.connect(func():
+		ambient2.play()
+	)
 
 func play_sfx(stream: AudioStream, pos: Vector2 = Vector2.ZERO, volume_db: float = 0.0) -> void:
 	if stream == null:

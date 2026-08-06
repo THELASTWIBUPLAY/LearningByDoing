@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cr0wossw6vr3o" path="res://Scripts/global.gd" id="1_6yl2a"]
 
 [node name="Global" type="Node" unique_id=927659644]
+process_mode = 3
 script = ExtResource("1_6yl2a")
 
 [node name="AmbientPlayer1" type="AudioStreamPlayer2D" parent="." unique_id=1330728363]
