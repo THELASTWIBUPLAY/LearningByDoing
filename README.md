@@ -74,4 +74,4 @@ Beberapa hal yang direncanakan untuk ditambahkan ke depannya:
 
 - **Engine:** Godot Engine 4.7.1
 - **Bahasa:** GDScript
-- **Arsitektur:** Scene-based (`world.tscn`, `cliff_side.tscn`) dengan autoload `Global` untuk data pemain, audio, dan status yang persisten lintas scene
+
